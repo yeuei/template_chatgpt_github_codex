@@ -1,97 +1,10 @@
-# template_chatgpt_github_codex
+# ChatGPT GitHub ↔ Codex 交接模板实例化协议
 
-这是一个用于 **用户（Human）+ ChatGPT + GitHub + 本地 Codex Agent** 协作的模板仓库。
+你正在读取一个供 ChatGPT/Agent 使用的模板仓库。不要把本文件当作面向人类的介绍页；把它当作“如何识别、实例化和继续使用 GitHub 交接仓库”的协议。
 
-目标不是把聊天记录搬进 GitHub，而是让 GitHub 成为双方共享的**当前事实与任务通信总线**：
+本仓库是模板，不是实际项目。文件中的尖括号、示例 PR、示例统计和示例分支都不是项目事实。Git 保存历史，当前 HEAD 只表达当前有效协议和项目事实。
 
-```text
-用户
-  ↓
-ChatGPT（规划 / 解惑 / 外部研究）
-  ↓
-GitHub：任务.md
-  ↓
-Codex Agent（本地执行 / 代码 / 实验）
-  ↓
-GitHub：agent汇报.md
-  ↓
-ChatGPT
-  ↓
-GitHub：chatgpt解惑.md
-  ↓
-Codex Agent继续执行
-```
-
-真正无法由 ChatGPT 或 Agent 决定的问题才升级给用户。
-
----
-
-## 1. 最重要的原则
-
-### 1.1 Git 保存历史，HEAD 只表达当前有效事实
-
-不要通过文件名保存历史版本：
-
-```text
-❌ 技术规范_v1.md
-❌ 技术规范_v2.md
-❌ 技术规范_final.md
-❌ agent汇报_20260903.md
-```
-
-应该始终原位更新：
-
-```text
-✅ docs/技术规范.md
-✅ coordination/PR-8/agent汇报.md
-```
-
-旧内容已经存在于 Git commit history 中，不需要继续留在当前 HEAD 污染模型上下文。
-
-### 1.2 一个 PR = 一个可以关闭的总任务
-
-每个开放 PR 都对应：
-
-```text
-coordination/PR-<PR号>/
-├── 任务.md
-├── agent汇报.md
-└── chatgpt解惑.md
-```
-
-PR 总任务完成后才允许进入合并流程。PR 合并后，该 PR 的 coordination 目录应尽快从 HEAD 清理；历史仍保存在 Git 中。
-
-### 1.3 三个文件承担不同职责
-
-| 文件 | 性质 | 主要写入者 | 更新方式 |
-|---|---|---|---|
-| `任务.md` | 累积任务合同 | ChatGPT 创建/追加；Agent 改状态 | **只增不减** |
-| `agent汇报.md` | Agent 当前现实快照 | Codex Agent | **每次覆盖** |
-| `chatgpt解惑.md` | ChatGPT 当前决策/解答 | ChatGPT | **每次覆盖** |
-
-### 1.4 不要让局部 BLOCKED 停止整个项目
-
-Agent 遇到 blocker 后：
-
-```text
-工程实现问题 → Agent 自行解决
-规划/解释问题 → ChatGPT 解决
-会改变科研/产品核心口径的问题 → 请求用户
-```
-
-ChatGPT 收到 blocker 后必须走向以下三种结果之一：
-
-```text
-A. 直接解决
-B. 明确授权 Agent 自行决定
-C. 明确请求用户做最小化决策
-```
-
-禁止只回复“先解决 blocker”。
-
----
-
-## 2. 仓库结构
+## 一、目录与文件语义
 
 ```text
 .
@@ -107,321 +20,69 @@ C. 明确请求用户做最小化决策
 │       ├── 任务.md
 │       ├── agent汇报.md
 │       └── chatgpt解惑.md
-├── config/
-│   └── README.md
-├── artifacts/
-│   └── README.md
-└── .github/
-    └── PULL_REQUEST_TEMPLATE.md
+├── config/README.md
+├── artifacts/README.md
+└── .github/PULL_REQUEST_TEMPLATE.md
 ```
 
-新项目从这个模板创建后，先填写：
+- `README.md`：当前交接仓库的入口协议。它必须说明本仓库是什么、如何进入项目、如何同步 ChatGPT 与 Agent；实例化后必须保留并扩写，不能只留下项目简介。
+- `docs/项目总览.md`：项目目标、阶段、主线、不变量、未决项和阅读路径。创建新交接仓库后填写。
+- `docs/技术规范.md`：当前技术实现与验收真源。创建新交接仓库后填写；已有正式规范时整合或链接，不要并列保留已废弃方案。
+- `docs/协作协议.md`：项目可选的协作补充规则。核心交接规则仍必须能从根 README 进入。
+- `coordination/README.md`：开放 PR 协作目录的使用规则。
+- `coordination/coordination.yaml`：通用事件、路由、去重、触发提示和安全协议；实例化后替换占位符，但不得写入秘密。
+- `coordination/TEMPLATE/`：每个真实 PR 的三文件起始模板，不代表任何真实 PR。
+- `coordination/PR-<N>/`：仅对应真实存在且需要交接的 PR；其中 `任务.md` 是累积任务合同，`agent汇报.md` 是 Agent 当前现实快照，`chatgpt解惑.md` 是 ChatGPT 当前决策快照。
+- `config/`：项目确实需要共享配置入口时保留；否则可删除。
+- `artifacts/`：项目确实需要共享产物入口时保留；否则可删除。
+- `.github/PULL_REQUEST_TEMPLATE.md`：PR 描述模板，通常保留并按项目需要扩写。
 
-1. `docs/项目总览.md`
-2. `docs/技术规范.md`
-3. `coordination/coordination.yaml`
+## 二、从模板创建新交接仓库
 
-不要一开始就创建大量专项文档。
+当用户选择“从模板开始”时：
 
----
+1. 使用本仓库当前有效文件建立目标仓库，不复制本模板的 Git 历史。
+2. 保留目标仓库的根 `README.md`，并在其基础上扩写项目入口、当前事实和本协议的核心协作规则。未来 ChatGPT 可能直接从已有交接仓库进入，不能删除这些规则。
+3. 填写 `docs/项目总览.md`，并填写 `docs/技术规范.md` 或提供到正式技术规范入口的明确链接。
+4. 保留 `coordination/README.md`、`coordination/coordination.yaml` 和 `coordination/TEMPLATE/`。YAML 中的仓库、项目和客户端字段改为目标项目的实际值或协议允许的占位符。
+5. `coordination/TEMPLATE/` 只保留说明性占位符和通用示例结构，不保留虚构的项目状态、统计数字、PR 号、分支名、commit 或用户信息。
+6. 不要预建任何虚构的 `coordination/PR-N/`。只有真实 PR 出现后，才把 `coordination/TEMPLATE/` 复制为对应的 `coordination/PR-<真实编号>/`，再填写任务和状态。
+7. `config/` 与 `artifacts/` 仅在项目需要时保留；无需求时可删除其 README 和目录。
+8. 删除或改写模板中与当前项目无关的示例文字，但不要删除根 README 中解释协作方式、入口选择、三文件语义和权限故障处理的核心协议。
+9. 不预建版本号文件。当前规范、汇报和解惑均原位更新，历史由 Git 保存。
 
-## 3. ChatGPT 和 Agent 各自能看到什么
+模板初始化完成后的最小核验：
 
-### ChatGPT 默认可以看到
+- 根 README 能让 ChatGPT 在没有原始对话的情况下理解交接方式；
+- 项目总览和技术规范入口已明确；
+- YAML 没有秘密、具体模板作者账号或虚构项目值；
+- 没有虚构的 `PR-N` 目录；
+- 只有真实 PR 才有对应三文件目录。
 
-- 已 push 到 GitHub 的代码、文档、PR、commit、diff；
-- `任务.md`；
-- `agent汇报.md`；
-- `chatgpt解惑.md`；
-- Git 历史；
-- 必要时可做外部网络研究。
+## 三、已有交接仓库入口
 
-### ChatGPT 默认看不到
+用户可以直接提供一个已经从本模板创建、或已经交接过多次的仓库。此时：
 
-- Agent 本地未 push 文件；
-- working tree / uncommitted diff；
-- 本地终端、运行进程、GPU 状态；
-- 本地 run 目录、日志、cache、dataset；
-- 本地 secrets。
+- 不要求重新从模板复制；
+- 先读取该仓库当前 README，遵守其当前项目事实和协作协议；
+- 再核验 open PR、当前 HEAD、相关 `coordination/PR-<N>/`、项目总览和技术规范；
+- 仅当已有 README 缺少模板协议时，才把本 README 作为补充规范；
+- 不用模板示例覆盖已有项目事实，也不把模板历史当作当前状态。
 
-因此，Agent 请求 ChatGPT 判断本地问题时，必须把**足够的最小上下文**写入 `agent汇报.md`。
+## 四、标准 PR 交接循环
 
-### Codex Agent 默认可以看到
+真实 PR 创建后，复制 `coordination/TEMPLATE/` 为 `coordination/PR-<N>/`。三个文件的职责必须分开：
 
-- 本地仓库和工作树；
-- 本地代码、dataset、模型、日志、运行进程；
-- CPU/GPU/磁盘；
-- 本地 config / manifest / artifact。
+- `任务.md`：ChatGPT 创建/追加任务，Agent 根据真实执行修改状态；已完成任务不删除。
+- `agent汇报.md`：Agent 覆盖写入当前 branch、commit、执行、runtime 结果、阻塞和仍可继续的工作。
+- `chatgpt解惑.md`：ChatGPT 覆盖写入当前结论、Agent 获得的工程自决权限、立即执行项和最小用户决策。
 
-### Codex Agent 默认看不到
+状态统一使用 `[ ] TODO`、`[~] RUNNING`、`[x] DONE`、`[!] BLOCKED`、`[?] WAITING_USER`、`[-] SUPERSEDED`。PR 合并后删除对应的 `coordination/PR-<N>/`，历史仍在 Git 中。
 
-- 用户刚刚在 ChatGPT 对话里说但尚未写入 GitHub 的决定；
-- ChatGPT 在其他 conversation 中的隐藏上下文；
-- 用户与 ChatGPT 未同步到当前仓库的信息。
+## 五、权限故障
 
-因此 Agent 不得猜测“ChatGPT 应该知道什么”，正式执行以 GitHub 当前真源为准。
+如果仓库不可见、只能读不能写，或无法创建 branch、提交文件、创建/更新 PR，不要声称成功。提醒用户访问：
 
----
+https://github.com/settings/installations
 
-## 4. 一个 PR 的标准生命周期
-
-### Step 1：建立 PR
-
-PR 创建后，把：
-
-```text
-coordination/TEMPLATE/
-```
-
-复制为：
-
-```text
-coordination/PR-8/
-```
-
-### Step 2：ChatGPT 填写任务
-
-示例：
-
-```markdown
-# [ ] PR #8 总任务：完成正式数据转换并生成可训练数据池
-
-- [x] T8.1 扫描原始数据
-- [~] T8.2 全量转换 Tool-Star
-- [!] T8.3 确定 Search-R1 正式来源
-- [ ] T8.4 生成 accepted candidate pool
-- [ ] T8.5 输出统计报告
-```
-
-状态统一为：
-
-```text
-[ ] TODO
-[~] RUNNING
-[x] DONE
-[!] BLOCKED
-[?] WAITING_USER
-[-] SUPERSEDED
-```
-
-### Step 3：Agent 执行并覆盖 `agent汇报.md`
-
-示例：
-
-```markdown
-# Agent 当前汇报
-
-## 当前
-- PR: #8
-- branch: data/full-conversion
-- commit: abc1234
-
-## 正在执行
-T8.2 Tool-Star 全量转换
-
-processed: 31240 / 53971
-accepted: 21904
-rejected: 1277
-
-## 当前 blocker
-Search-R1 有两个 10K 文件，选择不同来源会改变正式数据口径。
-
-## 不受影响工作
-Tool-Star 继续运行；ReTool 已完成。
-
-## 需要 ChatGPT
-只需要决定 Search-R1 使用 A 还是 B。
-```
-
-### Step 4：ChatGPT 覆盖 `chatgpt解惑.md`
-
-示例：
-
-```markdown
-# ChatGPT 当前解答
-
-## 基于
-PR #8 / commit abc1234
-
-## 结论
-Search-R1 使用 A。
-
-## Agent 已获得的权限
-manifest 路径、seed、row-id 编码、run 目录等工程细节由 Agent 自行冻结，无需再次请示。
-
-## 立即执行
-1. Tool-Star 继续运行；
-2. Search-R1 使用 A 全量转换；
-3. 不新增 smoke。
-
-## 需要用户决定
-无。
-```
-
-### Step 5：完成 / 合并
-
-所有仍有效子任务完成后：
-
-```text
-# [x] PR #8 总任务：...
-```
-
-表示业务上具备合并条件；仍需正常检查 CI、冲突和用户要求。
-
-PR 合并后，`coordination/PR-8/` 不应永久留在 HEAD。Git 历史已经保存全部交接过程。
-
----
-
-## 5. “应该怎么做”和“实际上做到哪里”是两套优先级
-
-### 规范性问题：应该怎么做？
-
-```text
-用户最新明确指令
-> 当前 PR 的 任务.md
-> 当前 chatgpt解惑.md
-> docs/技术规范.md
-> 当前正式 config / manifest
-> Git 历史
-> 模型记忆
-```
-
-### 现实状态问题：实际做到哪里？
-
-```text
-当前 branch / commit / runtime evidence
-> 最新 agent汇报.md
-> 任务.md 的状态
-> 其他当前文档
-> 历史记录
-```
-
-旧代码不能反向定义当前规范。
-
----
-
-## 6. 旧代码 / Runner 的规则
-
-旧 runner、旧 prompt、旧 config、历史 smoke 只能：
-
-```text
-阅读 → 理解经验 → 参考实现
-```
-
-不能因为“以前跑通过”就直接成为正式当前实现。
-
-当前实现必须从：
-
-```text
-任务.md + chatgpt解惑.md + 当前技术规范
-```
-
-重新推导需求。
-
-只有被当前规范明确认定为 `current approved component` 的组件才可以直接复用。
-
----
-
-## 7. 人工在环
-
-用户拥有最终覆盖权。
-
-通常：
-
-### Agent 自行决定
-
-- 文件路径；
-- manifest schema；
-- deterministic seed；
-- row ID 表示；
-- JSON/JSONL；
-- retry / logging / resume；
-- 普通 bug；
-- 模块拆分。
-
-### ChatGPT 可以决定
-
-- 任务优先级；
-- 哪些工作并行；
-- blocker 是否真的阻塞主线；
-- 旧实现是否被新规范覆盖；
-- 普通工程方案是否符合当前规划。
-
-### 必须请求用户
-
-会改变项目核心结论或实验/产品定义的问题，例如：
-
-- 数据源性质；
-- 正式训练数据规模/比例；
-- 模型替换；
-- reward / benchmark / tool cap；
-- 核心方法路线；
-- 论文/产品核心 claim。
-
-请求用户时必须把问题缩到最小，并给出推荐，而不是把整份设计重新丢给用户。
-
----
-
-## 8. 为未来事件触发器预留的协议
-
-模板已经在 `coordination/coordination.yaml` 中预留事件字段。
-
-建议 commit / PR 更新带来源信息：
-
-```text
-Coordination-Origin: agent
-Coordination-Client: local-agent-01
-Coordination-Event-Id: evt_xxx
-```
-
-或：
-
-```text
-Coordination-Origin: chatgpt
-Coordination-Client: web-gpt-01
-Coordination-Event-Id: evt_xxx
-```
-
-未来云端 Coordination Hub 可以据此实现：
-
-```text
-Agent 更新 PR → 只唤醒 ChatGPT
-ChatGPT 更新 PR → 只唤醒 Agent
-```
-
-Trigger prompt 只负责“唤醒”，**绝不能成为新的任务真源**。
-
-推荐唤醒提示：
-
-### 唤醒 ChatGPT
-
-```text
-GitHub 协作事件：PR #<N> 已由 Agent 更新。
-请读取该 PR 最新 diff、任务.md 与 agent汇报.md，按照 ChatGPT 协作职责处理。
-本事件只负责唤醒；GitHub 当前文件才是正式任务与状态真源。
-```
-
-### 唤醒 Agent
-
-```text
-GitHub 协作事件：PR #<N> 已由 ChatGPT 更新。
-请 fetch/pull 最新远端状态，读取任务.md 与 chatgpt解惑.md，核对本地实际状态后继续执行。
-本事件只负责唤醒；不要重复已完成任务。
-```
-
----
-
-## 9. 新项目使用清单
-
-- [ ] 填写 `docs/项目总览.md`
-- [ ] 填写 `docs/技术规范.md`
-- [ ] 配置 `coordination/coordination.yaml`
-- [ ] 删除模板注释中与当前项目无关的示例
-- [ ] 创建第一个 PR
-- [ ] 为 PR 建立 `coordination/PR-<N>/`
-- [ ] ChatGPT 写 `任务.md`
-- [ ] Agent 开始执行并维护 `agent汇报.md`
-- [ ] ChatGPT 用 `chatgpt解惑.md` 处理阻塞
-- [ ] PR 完成后合并并清理该 coordination 目录
-
-这套模板的核心不是“写更多文档”，而是让双方永远知道：**现在该读哪三个文件、谁有权改什么、什么问题应该自己解决、什么问题必须升级。**
+配置 GitHub App 的 repository access；或者提供一个已经拥有足够读写权限的空白交接仓库或现有交接仓库。权限恢复后，从当前 HEAD 继续核验，不要重复制造历史文件。
