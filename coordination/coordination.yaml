@@ -1,15 +1,15 @@
 schema_version: coordination.v1
 
 project:
-  project_id: "REPLACE_ME"
-  repository: "yeuei/REPLACE_ME"
+  project_id: "<PROJECT_ID>"
+  repository: "<OWNER>/<REPOSITORY>"
 
 clients:
   chatgpt:
-    client_id: "web-gpt-01"
+    client_id: "<CHATGPT_CLIENT_ID>"
     role: "planner_coordinator"
   agent:
-    client_id: "local-agent-01"
+    client_id: "<AGENT_CLIENT_ID>"
     role: "local_executor"
 
 event_protocol:
