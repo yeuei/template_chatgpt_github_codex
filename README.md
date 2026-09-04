@@ -36,6 +36,7 @@
 - `config/`：项目确实需要共享配置入口时保留；否则可删除。
 - `artifacts/`：项目确实需要共享产物入口时保留；否则可删除。
 - `.github/PULL_REQUEST_TEMPLATE.md`：PR 描述模板，通常保留并按项目需要扩写。
+- `trigger/`（可选）：仅当项目采用本地 GitHub ↔ ChatGPT Web 触发器时使用。运行配置、SQLite 状态、ChatGPT conversation URL、浏览器 profile、local command 和任何秘密必须忽略提交，不能放入模板或目标仓库 HEAD。
 
 ## 二、从模板创建新交接仓库
 
@@ -108,3 +109,21 @@
 https://github.com/settings/installations
 
 配置 GitHub App 的 repository access；或者提供一个已经拥有足够读写权限的空白交接仓库或现有交接仓库。权限恢复后，从当前 HEAD 继续核验，不要重复制造历史文件。
+
+## 六、可选的本地触发器协议
+
+当实际交接仓库在用户本机部署了触发器时，触发器只是 GitHub 事件的运输层，不是第二个任务真源。它可以把 Agent-origin 更新唤醒到固定的 ChatGPT Web Chat，也可以把 ChatGPT-origin 更新唤醒到 local Agent。两端仍必须重新读取 GitHub 当前 HEAD 和相关三文件。
+
+事件-bearing commit 末尾使用统一 trailer：
+
+```text
+Coordination-Origin: agent | chatgpt
+Coordination-Event-Id: <stable-event-id>
+Coordination-Caused-By: <parent-event-id>   # optional
+```
+
+- `Coordination-Event-Id` 是本次逻辑事件的去重键；重试不改变它。
+- `Coordination-Caused-By` 关联反向响应，避免把同一事件反复路由。
+- 没有启用本地触发器时，这些 trailer 可省略，正常 GitHub 协作不得被阻塞。
+- 触发器是否运行、某个方向是否允许、是否自动发送，以及 ChatGPT Web conversation URL 都是用户本机配置；不得写入 repository。
+- 推荐首次采用逐条人工审批和 fill-only。不要设计规避网站保护、验证码或速率限制的逻辑。

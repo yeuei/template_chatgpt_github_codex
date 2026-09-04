@@ -1,4 +1,4 @@
-schema_version: coordination.v1
+schema_version: coordination.v2
 
 project:
   project_id: "<PROJECT_ID>"
@@ -38,6 +38,20 @@ routing:
       - agent
     suppress:
       - chatgpt
+
+local_trigger:
+  enabled: false
+  implementation: null
+  dashboard_bind: "127.0.0.1"
+  dashboard_port: 8765
+  default_poll_interval_seconds: 15
+  default_approval_required: true
+  default_auto_submit: false
+  browser_adapter: "open-browser-use"
+  chatgpt_mode: "web_chat"
+  configuration_file: "trigger/config.local.json"
+  configuration_is_gitignored: true
+  # Conversation URL, browser profile, local command and all secrets stay local.
 
 origin_values:
   - agent
