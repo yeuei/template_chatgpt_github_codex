@@ -127,3 +127,5 @@ Coordination-Caused-By: <parent-event-id>   # optional
 - 没有启用本地触发器时，这些 trailer 可省略，正常 GitHub 协作不得被阻塞。
 - 触发器是否运行、某个方向是否允许、是否自动发送，以及 ChatGPT Web conversation URL 都是用户本机配置；不得写入 repository。
 - 推荐首次采用逐条人工审批和 fill-only。不要设计规避网站保护、验证码或速率限制的逻辑。
+
+连接状态必须分层处理：扩展弹窗显示 native host 已连接，不等于 CLI 当前的 relay socket 可用。目标仓库的本地 Dashboard 应提供连接检测按钮，展示 CLI `ping` 的时间、目标 browser/profile 和原始失败原因；发现 `active.json` 指向已删除 socket 时可清理 registry 并有限重试。长时间运行的触发器应复用一个 broker session、不要在每个事件后结束 turn；如果 native host 确实退出，则显示“无法连接”并请求用户重新唤醒所选浏览器，不得把失败伪装成已发送。

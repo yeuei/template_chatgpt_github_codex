@@ -51,6 +51,9 @@ local_trigger:
   chatgpt_mode: "web_chat"
   configuration_file: "trigger/config.local.json"
   configuration_is_gitignored: true
+  browser_health_endpoint: "/api/browser/check"
+  browser_health_ui: "检测浏览器连接"
+  reconnect_policy: "long_lived_session_then_stale_registry_cleanup_and_retry"
   # Conversation URL, browser profile, local command and all secrets stay local.
 
 origin_values:
