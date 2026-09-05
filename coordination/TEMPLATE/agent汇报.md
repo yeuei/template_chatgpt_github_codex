@@ -16,6 +16,16 @@
 - 任务 ID: `T<N>.<M>`
 - 状态: `[~] / [!] / [?] / [x]`
 
+## Binding（如本任务启用）
+
+- binding_id: `<binding-id 或 无>`
+- route_id: `<route-id 或 无>`
+- repository / branch / PR: `<...>`
+- web_conversation_id: `<由 ChatGPT 明确提供的稳定 ID；不得从标题推断>`
+- local_agent_id / local_conversation_id: `<...>`
+- 状态: `pending / claimed / active / expired / revoked / conflict`
+- expires_at: `<...>`
+
 ## 本次完成
 
 1. `<做了什么>`

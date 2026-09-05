@@ -136,3 +136,20 @@ Dashboard 应提供一个明确的“自动审批模式”按钮。该按钮默�
 连接状态必须分层处理：扩展弹窗显示 native host 已连接，不等于 CLI 当前的 relay socket 可用。目标仓库的本地 Dashboard 应提供连接检测按钮，展示 CLI `ping` 的时间、目标 browser/profile 和原始失败原因；发现 `active.json` 指向已删除 socket 时可清理 registry 并有限重试。长时间运行的触发器应复用一个**按目标配置稳定的** broker session、不要在每个事件后结束 turn；如果 native host 确实退出，则显示“无法连接”并请求用户重新唤醒所选浏览器，不得把失败伪装成已发送。
 
 反向 `ChatGPT Web → GitHub → local Agent` 若使用 Codex，初始化时只向用户请求一次：确认要运行的**绝对 wrapper 路径/命令**、`workspace-write` 和 `on-request` 权限。确认后将其写入用户本机忽略的配置；后续新任务沿用同一配置，不要重复口头询问。命令、仓库、权限策略变化或配置丢失时才重新请求授权。Dashboard 的自动审批不等于 Codex shell/file 审批；若需要“允许这一次/始终允许”弹窗，wrapper 应使用 Codex app-server 的 approval request 通道并把具体命令展示给用户，禁止使用 bypass 代替批准。
+
+## 七、通用 Binding 配对
+
+在需要精确路由时，ChatGPT 必须在当前 Web 对话中明确提供稳定的
+`web_conversation_id`，并为真实 repository/branch/pr_number 创建短期一次性
+邀请。Local Agent 使用邀请登记唯一 `route_id`、`local_agent_id` 和
+`local_conversation_id`，再由 ChatGPT/中转层确认；标题只用于展示，不能推断路由。
+
+标准状态为 `pending`、`claimed`、`active`、`expired`、`revoked`、`conflict`。
+服务端只保存 token 哈希；同一 repository/branch/PR 最多一个 active binding，
+重复认领、过期、目标不匹配和多 Agent 竞争都必须显式失败。模板实例可提供
+`GET /api/bindings` 及 invite/claim/confirm/revoke 入口；云端无法访问时刷新对话
+名称必须报告错误，不得伪造 active。
+
+## 八、发布组织建议
+
+模板只负责通用协议与 `coordination/TEMPLATE/`，不携带 Dashboard/runtime 或项目数据。实际项目由 Local Agent skill 作为安装/调度入口，调用目标仓库自己的运行时；发布时记录本模板的 tag/commit 快照，不默认初始化 git submodule，以免引入额外仓库和重复安装。目标项目应提供 `/api/status`、`/api/bindings` 兼容性说明，并把本机配置、浏览器 profile、命令和 token 留在忽略文件中。

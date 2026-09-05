@@ -35,3 +35,9 @@ coordination/
 - `任务.md`：累积，只增不减；ChatGPT 新增任务，Agent 改状态。
 - `agent汇报.md`：即时快照；Agent 每次重要更新完整覆盖。
 - `chatgpt解惑.md`：即时决策；ChatGPT 每次新的有效指导完整覆盖。
+
+## Binding 配对
+
+需要精确 Web ↔ Local Agent 路由时，使用 `coordination.yaml` 中的 binding.v1
+状态机与一次性邀请；不要用 PR 标题或 Web 页面标题猜测对话身份。每个真实
+repository/branch/PR 最多一个 `active` binding，认领和确认结果必须可审计。

@@ -14,6 +14,10 @@
 
 `<用 1–5 句话准确复述 Agent 真正需要解决的问题>`
 
+如启用 binding.v1，必须同时确认：ChatGPT 当前 Web 对话的稳定
+`web_conversation_id`、真实 repository/branch/pr_number、邀请过期时间，以及
+是否允许该目标进入唯一 `active` binding。不得用标题替代稳定 ID。
+
 ## 结论
 
 `<直接给出当前有效结论>`
